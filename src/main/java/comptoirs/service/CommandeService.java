@@ -8,6 +8,8 @@ import comptoirs.dao.ClientRepository;
 import comptoirs.dao.CommandeRepository;
 import comptoirs.entity.Commande;
 import jakarta.transaction.Transactional;
+import java.time.LocalDate;
+import comptoirs.entity.Ligne;
 
 @Service
 public class CommandeService {
@@ -62,8 +64,22 @@ public class CommandeService {
      * @return la commande mise à jour
      */
     @Transactional
-    public Commande enregistreExpédition(Integer commandeNum) {
-        // TODO : implémenter ce service métier
-        throw new UnsupportedOperationException("Pas encore implémenté");
+    public Commande saveExpedition(Integer commandeNum) {
+        var commande = commandeDao.findById(commandeNum).orElseThrow();
+        // check if command exist by request
+        if (commande.getEnvoyeele() == null) {
+
+            commande.setEnvoyeele(LocalDate.now());
+
+            for (Ligne l : commande.getLignes()) {
+                var p = l.getProduit();
+                int q = l.getQuantite();
+                p.setUnitesEnStock(p.getUnitesEnStock() - q);
+            }
+        } else {
+
+            throw new IllegalStateException("Commande déjà expédiée");
+        }
+        return commande;
     }
 }

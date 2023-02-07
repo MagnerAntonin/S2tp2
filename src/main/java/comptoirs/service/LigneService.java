@@ -8,7 +8,7 @@ import jakarta.transaction.Transactional;
 import jakarta.validation.constraints.Positive;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
-
+import comptoirs.entity.Produit;
 @Service
 @Validated // Les contraintes de validatipn des méthodes sont vérifiées
 public class LigneService {
@@ -45,6 +45,18 @@ public class LigneService {
      */
     @Transactional
     Ligne ajouterLigne(Integer commandeNum, Integer produitRef, @Positive int quantite) {
-        throw new UnsupportedOperationException("Cette méthode n'est pas implémentée");
+        var commande = commandeDao.findById(commandeNum).orElseThrow();
+        Produit produitref = produitDao.findById(produitRef).orElseThrow();
+
+        Ligne newligne = new Ligne(commande,produitref,quantite);
+        if (commande.getEnvoyeele() != null)
+        {throw new IllegalStateException("Commande envoyée");}
+        if (produitref.getUnitesEnStock() < quantite) {
+            throw new IllegalStateException("Pas de stocks");
+            }
+        produitref.setUnitesCommandees(produitref.getUnitesCommandees() + quantite);
+        ligneDao.save(newligne);
+
+        return newligne;
+        }
     }
-}

@@ -8,7 +8,10 @@ import java.math.BigDecimal;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-
+import comptoirs.entity.Commande;
+import comptoirs.entity.Produit;
+import org.mockito.internal.matchers.NotNull;
+import java.time.LocalDate;
 @SpringBootTest
  // Ce test est basé sur le jeu de données dans "test_data.sql"
 class CommandeServiceTest {
@@ -41,4 +44,13 @@ class CommandeServiceTest {
         assertEquals(VILLE_PETIT_CLIENT, commande.getAdresseLivraison().getVille(),
             "On doit recopier l'adresse du client dans l'adresse de livraison");
     }   
+
+
+    @Test
+    void testEnregistrementdesDatesdExpeditions() {
+        var commande = service.creerCommande(ID_GROS_CLIENT);
+
+        Commande CLivree = service.saveExpedition(commande.getNumero());
+        assertEquals(CLivree.getEnvoyeele(), LocalDate.now(), "L'expédition ne c'est pas faite");
+    }
 }
